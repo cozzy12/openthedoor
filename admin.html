@@ -291,10 +291,15 @@
 
             if (d && d.con) {
               let conStr = String(d.con);
-              if (conStr.includes("ALERT")) {
+              // 🔥 수정한 부분: ALERT 또는 INTRUSION 문구가 포함되면 침입 경고 표시!
+              if (conStr.includes("ALERT") || conStr.includes("INTRUSION")) {
                 if (conStr.includes("_")) {
                   let parts = conStr.split("_");
-                  if (parts.length > 1) lastAlertTime = parts[1];
+                  if (parts.length > 1 && parts[1] !== "DETECTED") {
+                    lastAlertTime = parts[1];
+                  } else {
+                    lastAlertTime = new Date().toLocaleTimeString();
+                  }
                 } else {
                   lastAlertTime = "실시간 감지됨";
                 }
