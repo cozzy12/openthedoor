@@ -186,7 +186,6 @@
             <div class="status-icon">😊</div>
             <p>불법침입 기록없음</p>
           </div>
-          <!-- 경고 상태일 때 클릭하면 침입 시간 기록이 포함된 팝업 출력 -->
           <div
             id="intrusion-warning"
             class="status-box warning hidden"
@@ -219,10 +218,13 @@
     </div>
 
     <script>
+      const SERVER_URL = "https://wldus.pythonanywhere.com";
       let lastAlertTime = "시간 정보 없음";
+      let serverShopRecords = [];
+      let serverCallRecords = [];
 
       function reqControl(n) {
-        fetch("/api/control", {
+        fetch(`${SERVER_URL}/api/control`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ con: n }),
@@ -236,43 +238,52 @@
           .catch((err) => console.error("Control Error:", err));
       }
 
-      // 경고 박스 클릭 시 감지 시간과 상세 기록 표시 후 안전 상태로 리셋
       function handleIntrusionClick() {
         alert(
           `🚨 [불법침입 기록 상세]\n- 감지 시간: ${lastAlertTime}\n- 내용: 발판 센서 무단 침입 정황 포착\n\n확인 완료 처리하여 시스템을 안전 상태로 전환합니다.`,
         );
 
-        fetch("/api/alert/reset", {
+        fetch(`${SERVER_URL}/api/alert/reset`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         })
-          .then(() => {
-            updateDashboard();
-          })
+          .then(() => updateDashboard())
           .catch((err) => console.error("Reset Error:", err));
       }
 
       function updateDashboard() {
-        // 1. 고객 출입 기록 업데이트
-        fetch("/api/status/store_entry_exit")
-          .then((m) => m.json())
-          .then((d) => {
-            if (d && d.con && d.con !== "Error") {
-              try {
-                let validJson = d.con.replace(/'/g, '"');
-                let c = JSON.parse(validJson);
-                if (c.inTime)
-                  document.getElementById("last-in-time").innerText = c.inTime;
-                if (c.outTime)
-                  document.getElementById("last-out-time").innerText =
-                    c.outTime;
-              } catch (e) {}
+        // 1. 전체 서버 기록 가져오기 (인원 수 & 호출 횟수)
+        fetch(`${SERVER_URL}/api/records/all`)
+          .then((res) => res.json())
+          .then((data) => {
+            serverShopRecords = data.shop_records || [];
+            serverCallRecords = data.call_records || [];
+
+            // 현재 이용 중인 인원 수 계산
+            let activeCount = serverShopRecords.filter(
+              (x) => x.status === "이용중",
+            ).length;
+            document.getElementById("current-count").innerText = activeCount;
+
+            // 호출 횟수 반영
+            document.getElementById("call-count").innerText =
+              serverCallRecords.length;
+
+            // 최근 기록 반영
+            if (serverShopRecords.length > 0) {
+              let lastRec = serverShopRecords[serverShopRecords.length - 1];
+              if (lastRec.inTime)
+                document.getElementById("last-in-time").innerText =
+                  lastRec.inTime;
+              if (lastRec.outTime)
+                document.getElementById("last-out-time").innerText =
+                  lastRec.outTime;
             }
           })
           .catch(() => {});
 
-        // 2. 불법침입(alert) 상태 업데이트 (기존 정상 작동 방식 복구 + 시간 파싱)
-        fetch("/api/status/alert")
+        // 2. 침입 상태 확인
+        fetch(`${SERVER_URL}/api/status/alert`)
           .then((m) => m.json())
           .then((d) => {
             let s = document.getElementById("intrusion-safe");
@@ -280,14 +291,10 @@
 
             if (d && d.con) {
               let conStr = String(d.con);
-              // ALERT 문자열이 포함되어 있으면 경고 상태 활성화
               if (conStr.includes("ALERT")) {
-                // ALERT_2026-06-06 12:34:56 형태에서 시간 추출 시도
                 if (conStr.includes("_")) {
                   let parts = conStr.split("_");
-                  if (parts.length > 1) {
-                    lastAlertTime = parts[1];
-                  }
+                  if (parts.length > 1) lastAlertTime = parts[1];
                 } else {
                   lastAlertTime = "실시간 감지됨";
                 }
@@ -303,32 +310,14 @@
             }
           })
           .catch(() => {});
-
-        syncLocalRecords();
-      }
-
-      function syncLocalRecords() {
-        let n = document.getElementById("current-count");
-        if (n) {
-          let m = JSON.parse(localStorage.getItem("global_shop_records")) || [];
-          n.innerText = m.filter((x) => x.status === "이용중").length;
-        }
-
-        let o = document.getElementById("call-count");
-        if (o) {
-          let p = JSON.parse(localStorage.getItem("global_call_records")) || [];
-          o.innerText = p.length;
-        }
       }
 
       function showAllRecords() {
-        let n = JSON.parse(localStorage.getItem("global_shop_records")) || [];
-        alert(JSON.stringify(n, null, 2));
+        alert(JSON.stringify(serverShopRecords, null, 2));
       }
 
       function showCallHistory() {
-        let m = JSON.parse(localStorage.getItem("global_call_records")) || [];
-        alert(JSON.stringify(m, null, 2));
+        alert(JSON.stringify(serverCallRecords, null, 2));
       }
 
       setInterval(updateDashboard, 2000);

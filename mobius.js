@@ -1,4 +1,3 @@
-// 🛠️ PythonAnywhere 클라우드 서버 주소로 변경
 const BASE_URL = "https://wldus.pythonanywhere.com";
 const u = `${BASE_URL}/api/send`;
 const callUrl = `${BASE_URL}/api/call`;
@@ -33,18 +32,10 @@ function getTime() {
   return new Date().toLocaleTimeString();
 }
 
-// 🚨 관리자 호출 함수
 function actionCallAdmin() {
   fetch(callUrl, { method: "POST" })
-    .then((n) => n.json())
-    .then((d) => {
-      let m = JSON.parse(localStorage.getItem("global_call_records")) || [];
-      let c = new Date();
-      let h = `${c.getFullYear()}-${String(c.getMonth() + 1).padStart(2, "0")}-${String(c.getDate()).padStart(2, "0")} ${String(c.getHours()).padStart(2, "0")}:${String(c.getMinutes()).padStart(2, "0")}`;
-
-      m.push({ time: h, status: "호출됨" });
-      localStorage.setItem("global_call_records", JSON.stringify(m));
-
+    .then((res) => res.json())
+    .then((data) => {
       alert("관리자를 호출했습니다.");
     })
     .catch((e) => {
@@ -67,13 +58,11 @@ function actionEnter() {
 
   fetch(u, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(rec),
   })
     .then((res) => res.json())
-    .then((data) => console.log("🎉 중계 성공:", data))
+    .then((data) => console.log("🎉 입장 전송 성공:", data))
     .catch((err) => console.error("❌ 전송 실패:", err));
 
   changeView("view-door-opened");
@@ -104,9 +93,7 @@ function actionExitConfirm() {
 
     fetch(u, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(exitRec),
     })
       .then((res) => res.json())
