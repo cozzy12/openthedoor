@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>무인매장 관리자 대시보드</title>
+    <style>
+      body {
+        font-family: "Malgun Gothic", sans-serif;
+        background-color: #f5f6fa;
+        margin: 0;
+        padding: 40px 20px;
+        display: flex;
+        justify-content: center;
+        color: #2d3436;
+      }
+      .dashboard-container {
+        background-color: #ffffff;
+        width: 100%;
+        max-width: 900px;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        box-sizing: border-box;
+      }
+      h1 {
+        font-size: 28px;
+        margin-top: 0;
+        margin-bottom: 40px;
+        font-weight: bold;
+        border-bottom: 2px solid #dfe6e9;
+        padding-bottom: 15px;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #4b4b4b;
+      }
+      .btn-text {
+        background: none;
+        border: none;
+        color: #6c5ce7;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .grid-container {
+        display: grid;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+      .triple-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .monitor-card {
+        background-color: #ffffff;
+        border: 2px solid #dfe6e9;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        box-sizing: border-box;
+        min-height: 160px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .monitor-card h3 {
+        font-size: 15px;
+        color: #636e72;
+        margin-top: 0;
+        margin-bottom: 10px;
+      }
+      .card-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #6c5ce7;
+        margin: auto 0;
+      }
+      .latest-record {
+        margin: auto 0;
+        display: flex;
+        justify-content: space-around;
+        font-size: 14px;
+      }
+      .latest-record strong {
+        display: block;
+        color: #b2bec3;
+        text-transform: uppercase;
+        font-size: 12px;
+        margin-bottom: 3px;
+      }
+      .status-box {
+        border-radius: 10px;
+        padding: 10px;
+        margin-top: 5px;
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+      .status-box:active {
+        transform: scale(0.98);
+      }
+      .status-icon {
+        font-size: 28px;
+        margin-bottom: 5px;
+      }
+      .status-box p {
+        margin: 0;
+        font-size: 13px;
+        font-weight: bold;
+      }
+      .safe {
+        background-color: #e8f8f5;
+        color: #2ecc71;
+        cursor: default;
+      }
+      .warning {
+        background-color: #fadbd8;
+        color: #e74c3c;
+      }
+      .btn {
+        padding: 18px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-sizing: border-box;
+      }
+      .btn-control {
+        background-color: #ffffff;
+        border: 2px solid #6c5ce7;
+        color: #6c5ce7;
+      }
+      .btn-control:hover {
+        background-color: #f3f0ff;
+      }
+      .btn-call {
+        width: 100%;
+        background-color: #ff9f43;
+        color: white;
+        border: none;
+      }
+      .call-notice {
+        font-size: 12px;
+        color: #95a5a6;
+        margin-top: 8px;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <h1>관리자 대시보드</h1>
+
+      <div class="section-title">
+        <span>매장 현재상태 모니터링</span>
+        <button class="btn-text" onclick="showAllRecords()">
+          전체 기록 보기
+        </button>
+      </div>
+
+      <div class="grid-container triple-grid">
+        <div class="monitor-card">
+          <h3>현재 입장 인원</h3>
+          <div class="card-value"><span id="current-count">0</span> 명</div>
+        </div>
+
+        <div class="monitor-card">
+          <h3>가장 최근 입장기록</h3>
+          <div class="latest-record">
+            <div><strong>in</strong> <span id="last-in-time">-</span></div>
+            <div><strong>out</strong> <span id="last-out-time">-</span></div>
+          </div>
+        </div>
+
+        <div class="monitor-card">
+          <h3>불법침입 감지 여부</h3>
+          <div id="intrusion-safe" class="status-box safe">
+            <div class="status-icon">😊</div>
+            <p>불법침입 기록없음</p>
+          </div>
+          <!-- 경고 상태일 때 클릭하면 침입 시간 기록이 포함된 팝업 출력 -->
+          <div
+            id="intrusion-warning"
+            class="status-box warning hidden"
+            onclick="handleIntrusionClick()"
+          >
+            <div class="status-icon alert-lamp">🚨</div>
+            <p>불법 침입 경고! (클릭시 확인)</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">출입문 제어</div>
+      <div class="grid-container triple-grid">
+        <button class="btn btn-control" onclick="reqControl('1')">
+          문 열기
+        </button>
+        <button class="btn btn-control" onclick="reqControl('0')">
+          문 닫기
+        </button>
+        <button class="btn btn-control" onclick="reqControl('2')">버저</button>
+      </div>
+
+      <div class="section-title">관리자호출</div>
+      <div class="call-section">
+        <button class="btn btn-call" onclick="showCallHistory()">
+          🚨 호출 버튼 눌린 횟수 : <span id="call-count">0</span>번
+        </button>
+        <p class="call-notice">* 클릭하면 호출기록을 열람할 수 있습니다.</p>
+      </div>
+    </div>
+
+    <script>
+      let lastAlertTime = "시간 정보 없음";
+
+      function reqControl(n) {
+        fetch("/api/control", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ con: n }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (n === "1") alert("문 열기 명령이 전송되었습니다.");
+            else if (n === "0") alert("문 닫기 명령이 전송되었습니다.");
+            else if (n === "2") alert("버저 울림 명령이 전송되었습니다.");
+          })
+          .catch((err) => console.error("Control Error:", err));
+      }
+
+      // 경고 박스 클릭 시 감지 시간과 상세 기록 표시 후 안전 상태로 리셋
+      function handleIntrusionClick() {
+        alert(
+          `🚨 [불법침입 기록 상세]\n- 감지 시간: ${lastAlertTime}\n- 내용: 발판 센서 무단 침입 정황 포착\n\n확인 완료 처리하여 시스템을 안전 상태로 전환합니다.`,
+        );
+
+        fetch("/api/alert/reset", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        })
+          .then(() => {
+            updateDashboard();
+          })
+          .catch((err) => console.error("Reset Error:", err));
+      }
+
+      function updateDashboard() {
+        // 1. 고객 출입 기록 업데이트
+        fetch("/api/status/store_entry_exit")
+          .then((m) => m.json())
+          .then((d) => {
+            if (d && d.con && d.con !== "Error") {
+              try {
+                let validJson = d.con.replace(/'/g, '"');
+                let c = JSON.parse(validJson);
+                if (c.inTime)
+                  document.getElementById("last-in-time").innerText = c.inTime;
+                if (c.outTime)
+                  document.getElementById("last-out-time").innerText =
+                    c.outTime;
+              } catch (e) {}
+            }
+          })
+          .catch(() => {});
+
+        // 2. 불법침입(alert) 상태 업데이트 (기존 정상 작동 방식 복구 + 시간 파싱)
+        fetch("/api/status/alert")
+          .then((m) => m.json())
+          .then((d) => {
+            let s = document.getElementById("intrusion-safe");
+            let w = document.getElementById("intrusion-warning");
+
+            if (d && d.con) {
+              let conStr = String(d.con);
+              // ALERT 문자열이 포함되어 있으면 경고 상태 활성화
+              if (conStr.includes("ALERT")) {
+                // ALERT_2026-06-06 12:34:56 형태에서 시간 추출 시도
+                if (conStr.includes("_")) {
+                  let parts = conStr.split("_");
+                  if (parts.length > 1) {
+                    lastAlertTime = parts[1];
+                  }
+                } else {
+                  lastAlertTime = "실시간 감지됨";
+                }
+                s.classList.add("hidden");
+                w.classList.remove("hidden");
+              } else {
+                s.classList.remove("hidden");
+                w.classList.add("hidden");
+              }
+            } else {
+              s.classList.remove("hidden");
+              w.classList.add("hidden");
+            }
+          })
+          .catch(() => {});
+
+        syncLocalRecords();
+      }
+
+      function syncLocalRecords() {
+        let n = document.getElementById("current-count");
+        if (n) {
+          let m = JSON.parse(localStorage.getItem("global_shop_records")) || [];
+          n.innerText = m.filter((x) => x.status === "이용중").length;
+        }
+
+        let o = document.getElementById("call-count");
+        if (o) {
+          let p = JSON.parse(localStorage.getItem("global_call_records")) || [];
+          o.innerText = p.length;
+        }
+      }
+
+      function showAllRecords() {
+        let n = JSON.parse(localStorage.getItem("global_shop_records")) || [];
+        alert(JSON.stringify(n, null, 2));
+      }
+
+      function showCallHistory() {
+        let m = JSON.parse(localStorage.getItem("global_call_records")) || [];
+        alert(JSON.stringify(m, null, 2));
+      }
+
+      setInterval(updateDashboard, 2000);
+      updateDashboard();
+    </script>
+  </body>
+</html>

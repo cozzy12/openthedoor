@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>무인매장 모바일 출입 시스템</title>
+    <link rel="stylesheet" href="user_style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- 1. 무인 매장 방문 (홈 화면) -->
+      <div id="view-home">
+        <h1>🔏무인 매장 방문</h1>
+        <p>환영합니다! 매장 이용을 위해 원하시는 기능을 선택해 주세요.</p>
+        <button class="btn btn-primary" onclick="changeView('view-otp-grant')">
+          입장하기
+        </button>
+        <button class="btn btn-outline" onclick="changeView('view-login')">
+          이용 중 로그인
+        </button>
+        <button class="btn btn-warning" onclick="actionCallAdmin()">
+          관리자 호출
+        </button>
+      </div>
+
+      <!-- 2. 출입번호 발급 화면 -->
+      <div id="view-otp-grant" class="hidden">
+        <h1>🔑출입번호 발급</h1>
+
+        <p>
+          입장을 위한 개인 일회용 출입번호를 발급하였습니다.<br />
+          출입 내용은 보안을 위해 기록되며 퇴장 전까지 브라우저에 안전하게
+          보관됩니다.
+        </p>
+        <div id="generated-otp" class="otp-display">0000</div>
+        <button class="btn btn-success" onclick="actionEnter()">
+          문열고 입장하기
+        </button>
+      </div>
+
+      <!-- 3. 문 열림 화면 (문열고 입장하기 클릭 시) -->
+      <div id="view-door-opened" class="hidden">
+        <h1 style="color: #00b894">🔓 문이 열렸습니다!</h1>
+        <p>매장 안으로 입장해 주세요.<br />잠시 후 문이 자동으로 잠깁니다.</p>
+        <button
+          class="btn btn-primary"
+          onclick="changeView('view-exit-status')"
+        >
+          확인
+        </button>
+      </div>
+
+      <!-- 4. 매장 이용중 화면 (입장 후 화면) -->
+      <div id="view-exit-status" class="hidden">
+        <h1>매장 이용 중</h1>
+        <p>
+          퇴장을 원하시면 아래 버튼을 눌러주세요. <br />
+          <span
+            style="
+              display: block;
+              margin-top: 10px;
+              font-weight: bold;
+              color: #6c5ce7;
+              font-size: 16px;
+            "
+          >
+            내 출입번호 : <span id="current-user-otp"></span>
+          </span>
+        </p>
+        <button class="btn btn-outline" onclick="actionExitConfirm()">
+          퇴장하기
+        </button>
+        <button class="btn btn-warning" onclick="actionCallAdmin()">
+          관리자 호출
+        </button>
+      </div>
+
+      <!-- 5. 로그인 화면 -->
+      <div id="view-login" class="hidden">
+        <h1>이용 중 로그인</h1>
+        <p>입장 시 부여받았던<br />일회용 OTP 4자리를 입력하세요.</p>
+        <input
+          type="text"
+          id="input-otp"
+          class="input-field"
+          maxlength="4"
+          placeholder="0000"
+          inputmode="numeric"
+        />
+        <button class="btn btn-primary" onclick="actionLoginCheck()">
+          로그인
+        </button>
+        <button class="btn btn-outline" onclick="changeView('view-home')">
+          처음으로
+        </button>
+      </div>
+    </div>
+
+    <script src="mobius.js"></script>
+  </body>
+</html>

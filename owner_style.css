@@ -1,0 +1,181 @@
+/* 기본 배경 및 글로벌 세팅 */
+body {
+  font-family: "Malgun Gothic", sans-serif;
+  background-color: #f5f6fa;
+  margin: 0;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  color: #2d3436;
+}
+
+/* 대시보드 전체를 감싸는 넓은 컨테이너 */
+.dashboard-container {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 900px;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+/* 메인 타이틀 */
+h1 {
+  font-size: 28px;
+  margin-top: 0;
+  margin-bottom: 40px;
+  font-weight: bold;
+  border-bottom: 2px solid #dfe6e9;
+  padding-bottom: 15px;
+}
+
+/* 각 섹션의 제목 스타일 (소제목 + 버튼 정렬) */
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #4b4b4b;
+}
+
+/* [전체 기록 보기] 같은 텍스트 링크형 버튼 */
+.btn-text {
+  background: none;
+  border: none;
+  color: #6c5ce7;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+}
+.btn-text:hover {
+  text-decoration: underline;
+}
+
+/* 🧱 3단 분할 그리드 시스템 레이아웃 */
+.grid-container {
+  display: grid;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+.triple-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* 📊 상태 모니터링 카드 공통 스타일 */
+.monitor-card {
+  background-color: #ffffff;
+  border: 2px solid #dfe6e9;
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  box-sizing: border-box;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.monitor-card h3 {
+  font-size: 15px;
+  color: #636e72;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+/* 큰 숫자 데이터 강조 (n명) */
+.card-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #6c5ce7;
+  margin: auto 0;
+}
+
+/* 최근 입장 기록 레이아웃 (in / out) */
+.latest-record {
+  margin: auto 0;
+  display: flex;
+  justify-content: space-around;
+  font-size: 14px;
+}
+.latest-record strong {
+  display: block;
+  color: #b2bec3;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+
+/* 🚨 불법침입 감지 박스 공통 스타일 */
+.status-box {
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 5px;
+}
+.status-icon {
+  font-size: 28px;
+  margin-bottom: 5px;
+}
+.status-box p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* 안전 상태 (스케치 오른쪽 초록 미감지) */
+.safe {
+  background-color: #e8f8f5;
+  color: #2ecc71;
+}
+
+/* 경고 상태 (스케치 왼쪽 사이렌 감지) */
+.warning {
+  background-color: #fadbd8;
+  color: #e74c3c;
+}
+
+/* 🕹️ 출입문 제어 및 호출 버튼 스타일 */
+.btn {
+  padding: 18px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.btn-control {
+  background-color: #ffffff;
+  border: 2px solid #6c5ce7;
+  color: #6c5ce7;
+}
+.btn-control:hover {
+  background-color: #6c5ce7;
+  color: white;
+}
+
+/* 📞 관리자 호출 대형 버튼 (주황색 포인트 테마 유지) */
+.btn-call {
+  width: 100%;
+  background-color: #ff9f43;
+  color: white;
+  border: none;
+}
+.btn-call:hover {
+  background-color: #ee5a24;
+}
+
+.call-notice {
+  font-size: 12px;
+  color: #95a5a6;
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+/* 화면 전환용 숨김 처리 클래스 */
+.hidden {
+  display: none !important;
+}
